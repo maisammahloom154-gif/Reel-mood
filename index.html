@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Reel Mood</title>
+<style>
+:root{
+  --bg:#0a0c11; --text:#e9ebf1; --muted:#8b91a1; --faint:#5d6272;
+  --glass:rgba(255,255,255,.055); --glass-strong:rgba(255,255,255,.09);
+  --line:rgba(255,255,255,.10); --accent:#a3b1f5; --accent-ink:#0d1020;
+  --gold:#e3c983;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+}
+.bg{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(600px 420px at 85% -5%,rgba(120,140,255,.16),transparent 70%),
+    radial-gradient(520px 420px at -10% 60%,rgba(90,190,190,.09),transparent 70%),
+    var(--bg);}
+.app{max-width:560px;margin:0 auto;padding:18px 16px 40px}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.brand{font-size:20px;font-weight:650;letter-spacing:-.02em}
+.tabs{display:flex;gap:4px;padding:3px;border-radius:999px;background:var(--glass);border:1px solid var(--line)}
+.tab{padding:7px 14px;border-radius:999px;color:var(--muted);font-size:14px}
+.tab[aria-selected="true"]{background:var(--glass-strong);color:var(--text)}
+.icon-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--glass);border:1px solid var(--line);color:var(--muted)}
+
+/* glass */
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:22px;
+  -webkit-backdrop-filter:blur(20px) saturate(120%);backdrop-filter:blur(20px) saturate(120%)}
+.panel{padding:18px;display:grid;gap:18px}
+.label{font-size:13px;color:var(--muted);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);font-size:14px;transition:background .15s,color .15s,border-color .15s}
+.chip[aria-pressed="true"]{background:rgba(163,177,245,.16);border-color:rgba(163,177,245,.5);color:var(--text)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:3px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.seg button{padding:9px 4px;border-radius:11px;color:var(--muted);font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--glass-strong);color:var(--text)}
+.row{display:flex;gap:10px}
+.btn{flex:1;min-height:48px;border-radius:16px;font-weight:600;padding:0 18px}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{flex:0 0 auto;background:var(--glass);border:1px solid var(--line);color:var(--text)}
+.btn:active{transform:scale(.985)}
+
+/* results */
+.results{margin-top:20px;display:grid;gap:14px}
+.res-head{display:flex;align-items:center;justify-content:space-between;padding:0 4px}
+.res-head h2{margin:0;font-size:16px;font-weight:600}
+.link{color:var(--accent);font-size:14px;padding:6px 4px}
+.card{padding:14px;display:grid;gap:12px}
+.card-top{display:grid;grid-template-columns:112px 1fr;gap:14px}
+.poster{width:112px;aspect-ratio:2/3;object-fit:cover;border-radius:14px;border:1px solid var(--line);background:#161923;display:block}
+.info{min-width:0;display:flex;flex-direction:column;gap:6px}
+.title{margin:0;font-size:18px;font-weight:650;letter-spacing:-.015em;line-height:1.2}
+.sub{color:var(--muted);font-size:13px}
+.match{align-self:flex-start;font-size:12px;padding:3px 9px;border-radius:999px;background:rgba(163,177,245,.14);color:var(--accent)}
+.rates{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.r{display:flex;flex-direction:column;align-items:center;min-width:52px;padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.r b{font-size:15px;font-weight:650}
+.r i{font-style:normal;font-size:11px;color:var(--muted)}
+.r.imdb b{color:var(--gold)}
+.stats{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.stats span b{color:var(--text);font-weight:600}
+.desc{margin:0;color:#c9cdd8;font-size:14px;line-height:1.5}
+.why{margin:0;font-size:13px;color:var(--accent)}
+.actions{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:10px}
+.act{flex:1;min-height:40px;border-radius:12px;font-size:14px;color:var(--muted);background:rgba(255,255,255,.04)}
+.act.on{color:var(--gold);background:rgba(227,201,131,.10)}
+.empty{text-align:center;color:var(--muted);padding:34px 20px}
+
+/* settings sheet */
+.sheet-wrap{position:fixed;inset:0;z-index:20;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5)}
+.sheet-wrap.open{display:flex}
+.sheet{width:100%;max-width:560px;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px));border-radius:24px 24px 0 0;background:rgba(20,23,32,.92);
+  -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border:1px solid var(--line);display:grid;gap:14px}
+.sheet h3{margin:0;font-size:17px}
+.sheet p{margin:0;color:var(--muted);font-size:13px}
+.input{width:100%;min-height:46px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);font:inherit}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="app">
+  <div class="top">
+    <div class="brand">Reel Mood</div>
+    <div class="row" style="align-items:center">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="discover" aria-selected="true">Discover</button>
+        <button class="tab" role="tab" data-tab="saved" aria-selected="false">Saved <span id="savedCount"></span></button>
+      </div>
+      <button class="icon-btn" id="openSettings" aria-label="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <section id="discover">
+    <div class="glass panel">
+      <div>
+        <div class="label">How are you feeling? Pick one or more</div>
+        <div class="chips" id="moods"></div>
+      </div>
+      <div>
+        <div class="label">Lean on</div>
+        <div class="seg" id="lens"></div>
+      </div>
+      <div>
+        <div class="label">How many movies</div>
+        <div class="seg" id="count"></div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="find">Find movies</button>
+        <button class="btn ghost" id="surprise">Surprise me</button>
+      </div>
+    </div>
+    <div class="results" id="results"></div>
+  </section>
+
+  <section id="saved" hidden>
+    <div class="results" id="savedList"></div>
+  </section>
+</div>
+
+<div class="sheet-wrap" id="sheet">
+  <div class="sheet glass" role="dialog" aria-label="Settings">
+    <h3>Settings</h3>
+    <div>
+      <div class="label">Real posters (optional)</div>
+      <input class="input" id="tmdbKey" type="password" placeholder="TMDB API key (v3)" autocomplete="off">
+      <p style="margin-top:8px">Add a free TMDB key to load real posters. It works in the installed app; the web preview shows generated posters. Posters and data are provided by TMDB when enabled.</p>
+    </div>
+    <p>Ratings, box office and buzz are a built-in snapshot and are approximate. Buzz is a 0 to 100 score for current popularity.</p>
+    <div class="row">
+      <button class="btn ghost" id="resetSeen">Clear “seen” list</button>
+      <button class="btn primary" id="saveSettings">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- storage (safe) ---------- */
+const mem={};
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?(k in mem?mem[k]:d):JSON.parse(v)}catch(e){return k in mem?mem[k]:d}},
+  set(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+
+/* ---------- data ---------- */
+const MOODS=[['cheer','Cheerful'],['chill','Chill'],['hype','Hyped'],['laugh','Funny'],['love','Romantic'],['cry','Emotional'],['mind','Mind-bending'],['scare','Scary'],['nost','Nostalgic']];
+const MOOD_NAME=Object.fromEntries(MOODS);
+const LENS={balanced:['Balanced',[.40,.20,.20,.10,.10]],critics:['Critics',[.35,.40,.15,.05,.05]],crowd:['Crowd',[.35,.10,.30,.20,.05]],trending:['Trending',[.35,.10,.10,.10,.35]]};
+
+// title, year, runtime, genres, imdb, rt, meta, boxOfficeMillions(0=streaming), buzz, moods(first = strongest), description
+const RAW=[
+['Inception',2010,148,'Sci-Fi, Thriller',8.8,87,74,837,80,['mind','hype'],'A thief who steals secrets from dreams is offered one last job: planting an idea inside a target’s mind.'],
+['The Dark Knight',2008,152,'Action, Crime',9.0,94,84,1006,85,['hype','nost'],'Batman faces the Joker, a chaotic criminal who pushes Gotham and its heroes to their limits.'],
+['Interstellar',2014,169,'Sci-Fi, Drama',8.7,73,74,733,82,['mind','cry'],'Explorers travel through a wormhole to find humanity a new home as Earth fails.'],
+['Oppenheimer',2023,180,'Biography, Drama',8.3,93,90,975,78,['mind'],'The story of J. Robert Oppenheimer and the race to build the first atomic bomb.'],
+['Dune: Part Two',2024,166,'Sci-Fi, Adventure',8.5,92,79,714,84,['hype'],'Paul Atreides joins the Fremen on Arrakis and fights to avenge his family.'],
+['Parasite',2019,132,'Thriller, Drama',8.5,99,97,262,76,['mind'],'A poor family schemes its way into the lives of a wealthy household, with unexpected consequences.'],
+['Everything Everywhere All at Once',2022,139,'Sci-Fi, Comedy',7.8,94,81,143,74,['mind','cry','laugh'],'A tired laundromat owner is pulled across the multiverse to face a threat only she can stop.'],
+['Spider-Man: Across the Spider-Verse',2023,140,'Animation, Action',8.6,95,86,690,76,['hype','cheer'],'Miles Morales swings through the multiverse and meets a team of Spider-People.'],
+['Top Gun: Maverick',2022,130,'Action, Drama',8.2,96,78,1496,72,['hype','nost','cheer'],'Maverick returns to train a new generation of pilots for a near-impossible mission.'],
+['Whiplash',2014,106,'Drama, Music',8.5,94,89,49,62,['hype','cry'],'A young drummer is driven to the edge by an unrelenting conservatory teacher.'],
+['La La Land',2016,128,'Romance, Musical',8.0,91,94,448,66,['love','cry','cheer'],'A musician and an actress chase their dreams in Los Angeles and each other.'],
+['The Grand Budapest Hotel',2014,99,'Comedy, Adventure',8.1,92,88,173,60,['chill','laugh','cheer'],'A legendary concierge and his lobby boy are caught up in a stolen painting caper.'],
+['Superbad',2007,113,'Comedy',7.6,88,76,170,55,['laugh','nost','cheer'],'Two best friends try to make their last high school party count.'],
+['Knives Out',2019,130,'Mystery, Comedy',7.9,97,82,311,70,['laugh','chill','mind'],'A detective investigates the death of a wealthy novelist surrounded by a scheming family.'],
+['Paddington 2',2017,103,'Family, Comedy',7.8,99,88,227,58,['cheer','chill'],'Paddington is wrongly jailed and wins over the prison while his family hunts for the real thief.'],
+['Spirited Away',2001,125,'Animation, Fantasy',8.6,96,96,395,70,['chill','mind','nost'],'A girl wanders into a world of spirits and must work in a bathhouse to save her parents.'],
+['Get Out',2017,104,'Horror, Thriller',7.7,98,84,255,66,['scare','mind'],'A young photographer visits his girlfriend’s family and uncovers a disturbing secret.'],
+['A Quiet Place',2018,90,'Horror, Sci-Fi',7.5,96,82,341,60,['scare','hype'],'A family lives in silence to hide from creatures that hunt by sound.'],
+['Hereditary',2018,127,'Horror',7.3,89,87,82,55,['scare'],'After a family matriarch dies, her relatives begin to unravel a chilling legacy.'],
+['The Shining',1980,146,'Horror',8.4,83,66,47,62,['scare','nost'],'A caretaker and his family spend a winter in an isolated hotel that slowly takes hold of him.'],
+['Before Sunrise',1995,101,'Romance, Drama',8.1,100,77,6,50,['love','chill'],'Two strangers meet on a train and spend one night talking through Vienna.'],
+['Pride & Prejudice',2005,129,'Romance, Drama',7.8,87,82,121,55,['love','chill','nost'],'Elizabeth Bennet and Mr. Darcy clash over pride and first impressions in Regency England.'],
+['Notting Hill',1999,124,'Romance, Comedy',7.2,84,68,364,50,['love','cheer','laugh'],'A London bookshop owner falls for the world’s most famous film star.'],
+['Eternal Sunshine of the Spotless Mind',2004,108,'Romance, Sci-Fi',8.3,93,89,74,62,['love','cry','mind'],'A couple erases each other from their memories, then rediscovers what they lost.'],
+['Her',2013,126,'Sci-Fi, Romance',8.0,95,91,48,64,['love','cry','chill','mind'],'A lonely writer forms a deep bond with an intelligent operating system.'],
+['Manchester by the Sea',2016,137,'Drama',7.8,96,96,79,40,['cry'],'A grieving handyman returns to his hometown to care for his teenage nephew.'],
+['Coco',2017,105,'Animation, Family',8.4,97,81,807,74,['cry','cheer'],'A boy who dreams of music travels to the Land of the Dead to uncover his family’s past.'],
+['The Shawshank Redemption',1994,142,'Drama',9.3,89,82,29,88,['cry','nost','chill'],'Two imprisoned men build an unlikely friendship over decades and hold on to hope.'],
+['Back to the Future',1985,116,'Sci-Fi, Comedy',8.5,93,87,388,72,['nost','cheer','hype','laugh'],'A teenager is sent back to 1955 and must make sure his parents fall in love.'],
+['Jurassic Park',1993,127,'Adventure, Sci-Fi',8.2,92,68,1050,74,['nost','hype'],'A theme park of cloned dinosaurs turns into a fight for survival.'],
+['Mad Max: Fury Road',2015,120,'Action, Adventure',8.1,97,90,380,68,['hype'],'Furiosa and Max race across a wasteland in one long, spectacular chase.'],
+['John Wick',2014,101,'Action, Thriller',7.4,86,68,88,60,['hype'],'A retired hitman returns to the underworld after criminals take everything from him.'],
+['Avengers: Endgame',2019,181,'Action, Sci-Fi',8.4,94,78,2799,80,['hype','cry'],'The Avengers assemble one last time to undo the damage of Thanos.'],
+['The Matrix',1999,136,'Sci-Fi, Action',8.7,83,73,467,78,['mind','hype','nost'],'A hacker discovers that reality is a simulation and joins a rebellion against its machines.'],
+['Groundhog Day',1993,101,'Comedy, Romance',8.0,96,72,105,60,['laugh','cheer','love','nost'],'A cynical weatherman is stuck reliving the same day until he changes.'],
+['Ferris Bueller’s Day Off',1986,103,'Comedy',7.8,82,61,70,50,['laugh','cheer','nost'],'A charming teenager skips school for a perfect day out in Chicago.'],
+['Arrival',2016,116,'Sci-Fi, Drama',7.9,94,81,203,68,['mind','cry','chill'],'A linguist is recruited to communicate with visitors who have landed on Earth.'],
+['Blade Runner 2049',2017,164,'Sci-Fi, Drama',8.0,88,81,260,60,['mind','chill'],'A young replicant uncovers a secret that could upend what is left of society.'],
+['Ex Machina',2015,108,'Sci-Fi, Thriller',7.7,92,78,37,58,['mind','scare'],'A programmer is asked to judge whether a humanoid robot has real consciousness.'],
+['Gone Girl',2014,149,'Mystery, Thriller',8.1,88,79,369,62,['mind','scare'],'A man becomes the prime suspect when his wife vanishes on their anniversary.'],
+['Toy Story',1995,81,'Animation, Family',8.3,100,96,394,66,['cheer','nost','laugh'],'A cowboy doll feels threatened when a shiny new space ranger joins the toy box.'],
+['The Princess Bride',1987,98,'Fantasy, Comedy',8.0,97,77,31,58,['cheer','laugh','love','nost'],'A farmhand sets out to rescue his true love in a tale of swordfights and giants.'],
+['School of Rock',2003,109,'Comedy, Music',7.1,92,82,131,52,['laugh','cheer'],'A struggling guitarist poses as a substitute teacher and turns his class into a band.'],
+['Inside Out 2',2024,96,'Animation, Family',7.6,91,73,1699,78,['cheer','cry','laugh'],'Riley turns thirteen and new emotions arrive, including Anxiety, and shake up headquarters.'],
+['Barbie',2023,114,'Comedy, Fantasy',6.8,88,80,1446,70,['cheer','laugh'],'Barbie leaves Barbieland for the real world and finds it more complicated than expected.'],
+['Palm Springs',2020,90,'Comedy, Romance',7.4,93,72,0,54,['laugh','love','chill'],'Two wedding guests get stuck in a time loop and start to fall for each other.'],
+['The Truman Show',1998,103,'Comedy, Drama',8.2,95,90,264,60,['mind','chill','nost'],'A man slowly realizes his entire life is a television show.'],
+['Amélie',2001,122,'Romance, Comedy',8.3,90,69,174,55,['cheer','love','chill'],'A shy Parisian waitress quietly sets out to improve the lives of those around her.']
+];
+const MOVIES=RAW.map((r,i)=>({id:i,title:r[0],year:r[1],runtime:r[2],genres:r[3],imdb:r[4],rt:r[5],mc:r[6],box:r[7],buzz:r[8],moods:r[9],desc:r[10]}));
+const BY_ID=Object.fromEntries(MOVIES.map(m=>[m.id,m]));
+
+/* ---------- state ---------- */
+const state={
+  moods:new Set(), lens:'balanced', count:3,
+  picks:[], ranked:[], base:{},
+  seen:new Set(store.get('rm_seen',[])), saved:new Set(store.get('rm_saved',[])), tab:'discover'
+};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- scoring ---------- */
+function moodScore(m){
+  if(!state.moods.size) return .5;
+  let t=0; state.moods.forEach(k=>{const i=m.moods.indexOf(k); t+= i<0?0:(i===0?1:.8)});
+  return t/state.moods.size;
+}
+function baseScore(m){
+  const w=LENS[state.lens][1];
+  const critics=(m.rt+m.mc)/200;
+  const audience=Math.max(0,Math.min(1,(m.imdb-6)/3.4));
+  const box=Math.log10(m.box+1)/Math.log10(2800);
+  const buzz=m.buzz/100;
+  return w[0]*moodScore(m)+w[1]*critics+w[2]*audience+w[3]*box+w[4]*buzz;
+}
+function run(excludeCurrent){
+  const skip=new Set(excludeCurrent?state.picks:[]);
+  const pool=MOVIES.filter(m=>!state.seen.has(m.id));
+  const scored=pool.map(m=>{const b=baseScore(m);state.base[m.id]=b;return {id:m.id,s:b+Math.random()*.07}}).sort((a,b)=>b.s-a.s);
+  state.ranked=scored.map(x=>x.id);
+  let list=state.ranked.filter(id=>!skip.has(id));
+  if(list.length<state.count) list=state.ranked.slice();
+  state.picks=list.slice(0,state.count);
+  renderResults();
+}
+function swap(id){
+  const idx=state.picks.indexOf(id); if(idx<0) return;
+  const next=state.ranked.find(x=>!state.picks.includes(x)&&!state.seen.has(x));
+  if(next==null) return;
+  state.picks[idx]=next;
+  // move swapped-out movie to the back so it does not return immediately
+  state.ranked=state.ranked.filter(x=>x!==id).concat(id);
+  renderResults();
+}
+function markSeen(id){
+  state.seen.add(id); store.set('rm_seen',[...state.seen]);
+  const idx=state.picks.indexOf(id);
+  const next=state.ranked.find(x=>!state.picks.includes(x)&&!state.seen.has(x));
+  if(next!=null) state.picks[idx]=next; else state.picks.splice(idx,1);
+  renderResults();
+}
+function toggleSave(id){
+  state.saved.has(id)?state.saved.delete(id):state.saved.add(id);
+  store.set('rm_saved',[...state.saved]); updateSavedCount(); renderResults(); renderSaved();
+}
+
+/* ---------- posters ---------- */
+f
